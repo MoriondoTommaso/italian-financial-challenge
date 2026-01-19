@@ -137,3 +137,13 @@ At the end of the EDA section, include **5–7 bullet takeaways** summarizing:
 - sector + region + size insights (business context)
 
 
+## 9) Correlation & Multicollinearity (Driver Analysis)
+**Output**
+- **Table/Barplot:** Top 10 features most correlated with `revenue_change` (use **Spearman** correlation to be robust against outliers).
+- **Heatmap (masked):** Pairwise correlations between financial ratios (e.g., `roe`, `roi`, `leverage`) to spot redundancy (e.g., > 0.8)[cite: 526].
+
+**Why**
+- Identifies linear/monotonic drivers for the regression model and detects multicollinearity (e.g., `current_ratio` vs `quick_ratio`) that could destabilize linear baselines[cite: 525, 526].
+
+**Takeaway**
+- “We identified top predictive drivers (e.g., Profit Margin) and flagged highly collinear features to reduce noise and overfitting.”
