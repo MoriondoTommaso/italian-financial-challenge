@@ -240,3 +240,140 @@ git remote set-url origin <URL>
 * hai mergiato main nel tuo branch
 * i file aggiornati sono solo quelli previsti
 * hai pushato
+
+
+Perfetto — aggiungo una sezione “Virtual Environment” **super operativa** (Windows + macOS) da seguire uguale per tutti.
+
+---
+
+# Virtual Environment (KIS) — Setup per tutti
+
+## Regole
+
+* **Un venv per repo** nella cartella `.venv/`
+* **Non** committare `.venv/` (di solito è già ignorata)
+* Installare dipendenze da `requirements.txt`
+
+---
+
+## Windows (Tommaso) — Git Bash + VS Code
+
+### 1) Vai nella root della repo
+
+```bash
+cd /c/Users/morio/OneDrive/Desktop/Projects/italian-financial-challenge
+```
+
+### 2) Crea il venv
+
+```bash
+python -m venv .venv
+```
+
+### 3) Attiva il venv (Git Bash)
+
+```bash
+source .venv/Scripts/activate
+```
+
+✅ Se è attivo vedrai `(.venv)` all’inizio della riga.
+
+### 4) Aggiorna pip (consigliato)
+
+```bash
+python -m pip install --upgrade pip
+```
+
+### 5) Installa dipendenze
+
+```bash
+pip install -r requirements.txt
+```
+
+### 6) VS Code: seleziona interpreter
+
+* `Ctrl + Shift + P` → **Python: Select Interpreter**
+* scegli `./.venv/Scripts/python.exe`
+
+---
+
+## macOS (Lorenzo, Carla, Eleonora) — Terminal + VS Code
+
+### 1) Vai nella root della repo
+
+```bash
+cd ~/path/to/italian-financial-challenge
+```
+
+### 2) Crea il venv
+
+```bash
+python3 -m venv .venv
+```
+
+### 3) Attiva il venv
+
+```bash
+source .venv/bin/activate
+```
+
+✅ Se è attivo vedrai `(.venv)` nel prompt.
+
+### 4) Aggiorna pip
+
+```bash
+python -m pip install --upgrade pip
+```
+
+### 5) Installa dipendenze
+
+```bash
+pip install -r requirements.txt
+```
+
+### 6) VS Code: seleziona interpreter
+
+* `Cmd + Shift + P` → **Python: Select Interpreter**
+* scegli `./.venv/bin/python`
+
+---
+
+## Verifica rapida (tutti)
+
+Con venv attivo:
+
+```bash
+python -c "import pandas, sklearn; print('OK')"
+```
+
+Se stampa `OK`, è tutto a posto.
+
+---
+
+## Se VS Code usa l’interprete sbagliato
+
+1. Chiudi e riapri VS Code nella root repo
+2. Seleziona interpreter come sopra
+3. In un notebook: in alto a destra scegli il **Kernel** = `.venv`
+
+---
+
+## Quando aggiungete nuove librerie
+
+1. Installate nel venv:
+
+```bash
+pip install <package>
+```
+
+2. Aggiornate `requirements.txt`:
+
+```bash
+pip freeze > requirements.txt
+```
+
+3. Commit del `requirements.txt` su GitHub
+
+> Consiglio: fate questa cosa solo quando siete sicuri (non ogni 5 minuti), per evitare rumore.
+
+
