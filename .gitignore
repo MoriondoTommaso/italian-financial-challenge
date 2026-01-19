@@ -71,3 +71,9 @@ teacher/
 test_targets.csv
 full_dataset.csv
 EVALUATION_RUBRIC.md
+
+# allow final slide exports and final submission files
+!slides/
+!slides/*.pdf
+!slides/*.pptx
+!outputs/submissions/*.csv
