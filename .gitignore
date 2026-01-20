@@ -28,7 +28,8 @@ wheels/
 *.ipynb_backup
 
 # Virtual environments
-venv/
+.venv
+venv
 ENV/
 env/
 

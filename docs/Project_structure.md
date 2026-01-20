@@ -1,4 +1,4 @@
-# EDA Final Checklist (KIS + Business-Ready) — Task 3
+# 1) EDA Final Checklist (KIS + Business-Ready) — Task 3
 
 ## 0) Dataset sanity (Data Contract)
 **Output**
@@ -147,3 +147,180 @@ At the end of the EDA section, include **5–7 bullet takeaways** summarizing:
 
 **Takeaway**
 - “We identified top predictive drivers (e.g., Profit Margin) and flagged highly collinear features to reduce noise and overfitting.”
+
+# 2) Imputation Strategy Design Roadmap (No Coding Yet)
+
+This section is **design-first**. It also makes explicit the **split boundary** to prevent leakage.
+
+---
+
+## 🔒 Split Boundary (Critical Rule)
+Before any model evaluation, we split the training data into **train-fold** and **validation-fold**.
+
+- ✅ **Allowed BEFORE the split (design/audit):**
+  - profiling, missingness analysis, feature typing
+  - defining rules and formulas (what we *will* do)
+  - deciding which statistics we *will compute later* (median/mode/percentiles), **without computing them yet**
+
+- ✅ **Required AFTER the split (fit/apply):**
+  - any statistic used for imputation/clipping/encoding **must be fit on train-fold only**
+  - then applied to validation-fold (and later to test)
+  - put in an `sklearn` Pipeline so this happens automatically per fold/CV
+
+- ⏳ **Special case — lag/time-derived features (t-1):**
+  - prefer **time-aware split** (or walk-forward) if features use previous-year info
+  - never use future values (t+1) to build features for year t
+
+---
+
+## Deliverables (what we should produce by the end)
+- `imputation_spec.md` (final rules)
+- `decision_log.md` (what we decided and why)
+- `assumption_log.md` (what must be verified during the audit)
+- A clear list of:
+  - **Deterministically reconstructable** fields
+  - **Structurally missing** fields (handled with flags / special values)
+  - **Residual missing** fields (true imputation needed)
+
+---
+
+## Step 0 — Data Audit Plan (what we will check)  ✅ BEFORE split
+**Objective:** define the checks that must be run before choosing any imputation.
+
+**Audit checklist to define:**
+1. Key integrity: confirm logical key is `(company_id, fiscal_year)`
+2. Duplicates on the key + resolution rule (investigate, dedupe, keep latest, etc.)
+3. Missingness overview: `% missing` per column in **train vs test**
+4. Missingness by time: `% missing` per column **by fiscal_year**
+5. Missingness by segments (if available): region / size buckets / sector
+6. Co-missingness patterns: which columns go missing together (block missingness)
+7. Derived-column feasibility: can we **recompute** missing derived fields from base columns?
+8. Ratio stability: denominators that are **0 / near 0 / negative** and overlap with missingness
+
+**Output:** a one-page audit checklist + reporting template.
+
+---
+
+## Step 1 — Data Contract & Feature Typing  ✅ BEFORE split
+**Objective:** label each feature to select the correct family of rules.
+
+**Feature types:**
+- **Keys/IDs** (never impute; fix upstream or drop rows if invalid)
+- **Categoricals** (province/region/sector…)
+- **Base numerics** (assets, debt, costs…)
+- **Derived numerics** (ratios, margins, changes, indicators)
+- **Leakage-risk / target-adjacent** (if any)
+
+**Output:** table: `feature → type → reconstructable? (Y/N) → notes`.
+
+---
+
+## Step 2 — Missingness Policy (governance rules)  ✅ BEFORE split
+**Objective:** set general rules *before* handling individual features.
+
+**Decisions to lock (policy only, no fitting):**
+- Thresholds: what counts as low/medium/high missingness
+- Handling differences between train vs test missingness
+- When to prefer **missing flags** + special category (e.g., `"UNK"`) vs statistical fill
+- When to drop a feature (too missing + not reconstructable + not stable)
+
+**Output:** a 1-page policy with thresholds and default rules.
+
+---
+
+## Step 3 — Deterministic Reconstruction First (highest priority)  ✅ BEFORE split (design) / ✅ AFTER split (apply)
+**Objective:** avoid “imputation” whenever the value can be computed.
+
+**Decisions to lock (BEFORE split):**
+- List all **derived** fields
+- Official formulas (from data dictionary / challenge description)
+- Rule: if ingredients exist → recompute; else → fallback policy
+- Sanity check: acceptable tolerance between recomputed and provided values
+
+**Application (AFTER split):**
+- Apply reconstruction consistently inside the preprocessing pipeline (train-fold + val-fold + test)
+
+**Output:** “Reconstruction Spec” table:
+`feature → formula → required inputs → fallback → validation check`.
+
+---
+
+## Step 4 — Rule-based Imputation (residual missing only)  ✅ BEFORE split (choose rules) / ✅ AFTER split (fit parameters)
+**Objective:** define conservative, explainable rules for what remains.
+
+**Rule design (BEFORE split):**
+- Categoricals:
+  - `"UNK"` + `is_missing` flag (default) vs
+  - group-based mode (e.g., mode within region/year) + fallback to global mode
+- Base numerics:
+  - global median vs group-based median (by year/size/sector) + fallback global
+  - always add `is_missing` flag for any imputed numeric
+- Ratios with unstable denominators:
+  - never “invent” silently; use flags + defined clipping/winsorization policy
+
+**Parameter fitting (AFTER split):**
+- Compute **mode/median/group medians** on **train-fold only**, apply to validation-fold/test
+
+**Output:** “Imputation Rulebook” grouped by feature type + standard flags.
+
+---
+
+## Step 5 — Outliers & Stability (post-imputation)  ✅ BEFORE split (choose method) / ✅ AFTER split (fit thresholds)
+**Objective:** prevent extreme values introduced by reconstruction/imputation.
+
+**Decisions to lock (BEFORE split):**
+- Which features get clipping/winsorization
+- Any transformations (e.g., `log1p`) only if justified and consistent
+
+**Threshold fitting (AFTER split):**
+- Percentiles computed **only on training fold**
+- Apply same thresholds to validation fold and test
+
+**Output:** list: `feature → stabilization rule → fit on train`.
+
+---
+
+## Step 6 — Train/Test Consistency & Leakage Guard  ✅ BEFORE split (contract) / ✅ AFTER split (enforced via pipeline)
+**Objective:** ensure the same rules apply to train and test without leakage.
+
+**Decisions to lock:**
+- Any statistic (median/mode/percentiles) must be **fit on train**, applied to val/test
+- Group-based rules must handle unseen groups in test (fallback global)
+- Target must never be used in feature creation or imputation logic
+
+**Output:** “Fit/Apply Contract” (what is learned from train vs applied to test).
+
+---
+
+## Step 7 — Evaluation Plan (validate choices)  ✅ AFTER split
+**Objective:** test whether imputation choices help.
+
+**Decisions to lock:**
+- Baseline pipeline (minimal rules)
+- A/B comparisons (small set, e.g., UNK vs mode; global vs year-based median)
+- Correct split strategy (time-aware if needed) and evaluation metrics
+
+**Output:** experiment plan with 2–4 targeted comparisons.
+
+---
+
+## Step 8 — Documentation & Decision Log (mandatory)  ✅ BEFORE & AFTER (continuous)
+**Objective:** keep the team aligned and avoid “implicit” rules.
+
+**What to produce:**
+- `imputation_spec.md` with final rules
+- `decision_log.md`: `date → decision → rationale → evidence`
+- `assumption_log.md`: things to verify during Step 0 audit
+
+**Output:** docs ready to commit to the repo.
+
+---
+
+## Definition of Done (Point 2 design)
+Point 2 is complete when:
+- All features are typed and assigned to one of:
+  - deterministic reconstruction
+  - structural missing handling
+  - residual imputation
+- Every rule has an owner, rationale, and planned validation check
+- The Fit/Apply contract prevents leakage and ensures consistency
