@@ -1,0 +1,14 @@
+strategy: holdout
+
+time_col: fiscal_year
+id_col: company_id
+target_col: revenue_change
+
+shuffle: false
+
+# Year used only for lagged features (no supervised lerning on that)
+history_years: [2018]
+
+# Supervised learning years
+train_years: [2019, 2020]
+val_years: [2021]

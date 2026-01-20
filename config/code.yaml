@@ -1,0 +1,6 @@
+train_path: data/processed/train_data.csv
+test_path: data/processed/test_features.csv
+
+id_col: company_id
+time_col: fiscal_year
+target_col: revenue_change
