@@ -1,80 +1,98 @@
-# Python
+# =====================================
+# Python / Build / Cache
+# =====================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
-venv/
-ENV/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Jupyter Notebook
-.ipynb_checkpoints
+build/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+pip-wheel-metadata/
+*.egg
+.installed.cfg
+
+# Virtual env (ONLY local, never commit)
+.venv/
+venv/
+env/
+ENV/
+
+# dotenv
+.env
+.env.*
+
+# =====================================
+# Testing / Coverage
+# =====================================
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+pytestdebug.log
+
+# =====================================
+# Jupyter
+# =====================================
+.ipynb_checkpoints/
 *.ipynb_backup
 
-# Virtual environments
-.venv
-venv
-ENV/
-env/
-
+# =====================================
 # IDE
+# =====================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# macOS
+# =====================================
+# OS
+# =====================================
 .DS_Store
+Thumbs.db
 
-# Model artifacts and outputs
+# =====================================
+# Model artifacts / outputs
+# =====================================
 *.pkl
 *.joblib
 *.h5
 *.pth
 
-# Data files (keep only the provided datasets)
+# =====================================
+# Data policy
+# Keep data/processed tracked (provided datasets live there)
+# Ignore raw/interim/external
+# =====================================
 data/raw/
 data/interim/
 data/external/
 
-# Plots and visualizations (students generate their own)
-*.png
-*.jpg
-*.jpeg
+# =====================================
+# Figures / plots policy
+# Ignore generic root folders, but allow reports/figures
+# =====================================
+/plots/
+/figures/
+
+# If you want to ignore “random” images globally but keep reports/figures, use this:
+# *.png
+# *.jpg
+# *.jpeg
+# !reports/figures/**
+
+# =====================================
+# PDFs policy
+# Ignore generic PDFs but allow slides exports + submissions
+# =====================================
 *.pdf
-plots/
-figures/
-
-# Logs
-*.log
-
-# Teacher materials (CONFIDENTIAL - should never be in student repo)
-teacher/
-*_solution.py
-*_solution.ipynb
-test_targets.csv
-full_dataset.csv
-EVALUATION_RUBRIC.md
-
-# allow final slide exports and final submission files
 !slides/
 !slides/*.pdf
 !slides/*.pptx
 !outputs/submissions/*.csv
+
