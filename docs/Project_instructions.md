@@ -1,63 +1,75 @@
-Perfetto. Qui sotto hai un **playbook super dettagliato ma KIS** per lavorare in 4 su GitHub senza intoppi (Windows + macOS).
 
 ---
 
-# GitHub Team Workflow (KIS) — Italian Financial Challenge
+## `docs/Project_instructions.md` (versione ottimizzata, pronta da sostituire)
 
-## Regole del progetto (anti-caos)
+````md
+# Project Playbook (KIS) — Italian Financial Challenge (Task 3)
+Workflow Git + venv + regole operative per lavorare in team senza conflitti.
 
-1.  `notebooks/final.ipynb` **Notebook finale da consegnare** pulito e profumato
-
-2. Ognuno lavora su:
-
-   * `notebooks/work_<nome>.ipynb`
-   * `reports/metrics/*` e `reports/notes/*`
-   * `docs/canva_link.md`
-
-3. No file pesanti inutili: salvate solo ciò che serve.
+**Repo owner:** Tommaso Moriondo  
+**Team:** Tommaso, Lorenzo, Eleonora, Carla  
+**Notebook di consegna:** `notebooks/final.ipynb`  
+**Slides:** Canva → export `slides/final.pdf` (versionato)
 
 ---
 
-## Setup iniziale (OGNUNO — una volta sola)
+## 0) Regole d’oro (anti-caos)
+1) **Non toccare** `notebooks/final.ipynb` se non per aggiungere versioni definitive.
+2) Ognuno lavora su:
+   - `notebooks/work_<nome>.ipynb`
+   - `reports/notes/*` e `reports/metrics/*`
+   - `docs/canva_link.md`
+3) **Commit piccoli e frequenti.** Meglio 3 piccoli che 1 enorme.
+4) Non committare file inutili/pesanti (cache, output non richiesti, artefatti locali).
 
-### 1) Clona la repo privata
+---
 
+## 1) ML Guardrails (anti-leakage) — da rispettare sempre
+Queste regole **non si negoziano** (vedi anche `docs/decisions.md`):
+- Split **time-aware**: Train = 2019–2020, Validation = 2021; **2018 solo history per lag**.
+- Qualunque trasformazione (imputation/encoding/scaling/clipping) è **fit solo sul train** e poi applicata a val/test.
+- Lag features: create solo dal passato con `groupby(company_id).shift(1)` dopo sorting per `fiscal_year`.
+- Implementazione preferita: **sklearn Pipeline** per garantire fit/apply corretto.
+
+---
+
+## 2) Setup iniziale (OGNUNO — una volta sola)
+
+### 2.1 Clona la repo
 ```bash
 git clone https://github.com/MoriondoTommaso/italian-financial-challenge.git
 cd italian-financial-challenge
-```
+````
 
-### 2) Config Git (se non già fatto)
+### 2.2 Config Git (se non già fatto)
 
 ```bash
 git config --global user.name "Nome Cognome"
 git config --global user.email "email@..."
 ```
 
-### 3) Line endings (importante per Windows/macOS)
+### 2.3 Line endings (Windows/macOS)
 
-* **Tommaso (Windows):**
+* **Windows**
 
 ```bash
 git config --global core.autocrlf true
 ```
 
-* **Team (macOS):**
+* **macOS**
 
 ```bash
 git config --global core.autocrlf input
 ```
 
-### 4) Crea il tuo branch personale e pusha
+### 2.4 Crea il tuo branch personale e pusha
 
-Scegli nome branch uguale al tuo nome:
+Branch naming:
 
-* `tommaso`
-* `lorenzo`
-* `carla`
-* `eleonora`
+* `tommaso`, `lorenzo`, `carla`, `eleonora`
 
-Esempio (Carla):
+Esempio:
 
 ```bash
 git switch -c carla
@@ -66,40 +78,48 @@ git push -u origin carla
 
 ---
 
-## Routine quotidiana (OGNUNO)
+## 3) Routine quotidiana (OGNUNO)
 
-### A) Prima di lavorare (sempre)
+### 3.1 Prima di lavorare (sempre)
 
-1. Vai su `main` e aggiornati:
+1. Aggiorna `main`:
 
-
+```bash
 git switch main
 git pull
-
+```
 
 2. Torna sul tuo branch e allinealo a `main`:
 
+```bash
 git switch carla
 git merge main
+```
 
+✅ Check:
 
-> Se ti compare un editor per il merge message: salva/chiudi e fine.
+```bash
+git status
+```
 
-✅ Done: `git status` deve dire “working tree clean”.
+deve dire “working tree clean” (o comunque nessun conflitto aperto).
 
+---
 
-### B) Lavoro (durante la sessione)
+### 3.2 Durante la sessione
 
 * Lavora SOLO su file “tuoi” (work notebook + notes/metrics).
 * Evita di toccare `notebooks/final.ipynb`.
 
-Controlla cosa hai cambiato:
+Controllo rapido:
 
+```bash
 git status
+```
 
 ---
 
-### C) Salvataggio (commit)
+### 3.3 Commit (salvataggio)
 
 1. Aggiungi file specifici:
 
@@ -113,11 +133,9 @@ git add notebooks/work_carla.ipynb reports/notes/eda_takeaways.md
 git commit -m "EDA: target distribution and key takeaways"
 ```
 
-> Fai commit piccoli e frequenti (meglio 3 piccoli che 1 enorme).
-
 ---
 
-### D) Push su GitHub
+### 3.4 Push
 
 ```bash
 git push
@@ -125,31 +143,30 @@ git push
 
 ---
 
-## Come integrare il lavoro (Pull Request)
+## 4) Pull Request (integrazione)
 
 ### OGNUNO: apri una PR
 
-1. Vai su GitHub → repo → Compare & pull request (o “New pull request”)
+1. GitHub → repo → “New pull request”
 2. Base: `main` ← Compare: `tuo-branch`
-3. Titolo chiaro, es:
-
-   * “EDA takeaways + target plots”
-   * “Transform comparison (Ridge) results”
-4. Descrizione: 2 righe con cosa hai aggiunto e dove.
+3. Titolo chiaro (es. “EDA takeaways + target plots”)
+4. Descrizione: 2 righe con cosa hai aggiunto e dove (path).
 
 ### TOMMASO: review e merge
 
-Tommaso controlla:
+Checklist per il merge:
 
 * file modificati corretti (no `final.ipynb` da altri)
-* presence output richiesto (csv in `reports/metrics`, note in `reports/notes`)
-  poi fa **Merge**.
+* output richiesto presente:
+
+  * note in `reports/notes`
+  * metriche in `reports/metrics`
 
 ---
 
-## Convenzioni (super importanti)
+## 5) Convenzioni (naming + commit)
 
-### Naming file
+### 5.1 Naming file
 
 * Notebook personali:
 
@@ -167,7 +184,7 @@ Tommaso controlla:
   * `reports/metrics/transform_compare.csv`
   * `reports/metrics/models_compare.csv`
 
-### Commit message template
+### 5.2 Commit message template
 
 * `EDA: ...`
 * `Model: ...`
@@ -176,11 +193,79 @@ Tommaso controlla:
 
 ---
 
-## Cosa fare se succede un problema (FAQ)
+## 6) Virtual Environment (KIS) — Setup per tutti
 
-### 1) “I have local changes and git pull fails”
+### Regole
 
-Usa stash:
+* Un venv per repo nella cartella `.venv/`
+* Non committare `.venv/` (deve stare in `.gitignore`)
+* Installare dipendenze da `requirements.txt`
+
+### Windows (Git Bash / VS Code)
+
+```bash
+cd /c/Users/morio/OneDrive/Desktop/Projects/italian-financial-challenge
+python -m venv .venv
+source .venv/Scripts/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+VS Code:
+
+* `Ctrl+Shift+P` → Python: Select Interpreter → `./.venv/Scripts/python.exe`
+* In notebook: seleziona Kernel = `.venv`
+
+### macOS (Terminal / VS Code)
+
+```bash
+cd ~/path/to/italian-financial-challenge
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+VS Code:
+
+* `Cmd+Shift+P` → Python: Select Interpreter → `./.venv/bin/python`
+* In notebook: Kernel = `.venv`
+
+### Verifica rapida (tutti)
+
+```bash
+python -c "import pandas, sklearn; print('OK')"
+```
+
+---
+
+## 7) Quando aggiungete nuove librerie
+
+1. Install nel venv:
+
+```bash
+pip install <package>
+```
+
+2. Aggiorna `requirements.txt` (solo quando siete sicuri, per non fare rumore):
+
+```bash
+pip freeze > requirements.txt
+```
+
+3. Commit del `requirements.txt`:
+
+```bash
+git add requirements.txt
+git commit -m "Chore: update requirements"
+git push
+```
+
+---
+
+## 8) FAQ rapida
+
+### 8.1 “I have local changes and git pull fails”
 
 ```bash
 git stash
@@ -188,192 +273,39 @@ git pull
 git stash pop
 ```
 
-### 2) “Merge conflict”
-
-Prima regola: non succede quasi mai se non toccate `final.ipynb`.
-Se succede:
+### 8.2 Merge conflict
 
 ```bash
 git status
 ```
 
-Apri i file in conflitto in VS Code, risolvi, poi:
+Risolvi in VS Code → poi:
 
 ```bash
 git add <file>
-git commit -m "Resolve merge conflict"
+git commit -m "Chore: resolve merge conflict"
 git push
 ```
 
-### 3) “Ho committato per sbaglio final.ipynb”
+### 8.3 “Ho committato per sbaglio final.ipynb”
 
-Se l’hai solo modificato ma NON committato:
+* Se NON committato:
 
 ```bash
 git restore notebooks/final.ipynb
 ```
 
-Se l’hai già committato:
-
-* scrivi a Tommaso, NON fare merge; si sistema con un revert o un reset sul branch.
-
-### 4) “Remote origin già esiste”
-
-Vedi remote:
-
-```bash
-git remote -v
-```
-
-Aggiorna:
-
-```bash
-git remote set-url origin <URL>
-```
+* Se già committato:
+  scrivi a Tommaso, **non fare merge** (si risolve con revert/reset sul branch).
 
 ---
 
-## Checklist “prima di aprire una PR”
+## 9) Checklist prima di aprire una PR
 
 * `git status` pulito
-* hai fatto `git pull` su main oggi
-* hai mergiato main nel tuo branch
-* i file aggiornati sono solo quelli previsti
+* oggi hai fatto `git pull` su `main`
+* hai mergiato `main` nel tuo branch
+* hai toccato solo file previsti
 * hai pushato
 
-
-Perfetto — aggiungo una sezione “Virtual Environment” **super operativa** (Windows + macOS) da seguire uguale per tutti.
-
----
-
-# Virtual Environment (KIS) — Setup per tutti
-
-## Regole
-
-* **Un venv per repo** nella cartella `.venv/`
-* **Non** committare `.venv/` (di solito è già ignorata)
-* Installare dipendenze da `requirements.txt`
-
----
-
-## Windows (Tommaso) — Git Bash + VS Code
-
-### 1) Vai nella root della repo
-
-```bash
-cd /c/Users/morio/OneDrive/Desktop/Projects/italian-financial-challenge
 ```
-
-### 2) Crea il venv
-
-```bash
-python -m venv .venv
-```
-
-### 3) Attiva il venv (Git Bash)
-
-```bash
-source .venv/Scripts/activate
-```
-
-✅ Se è attivo vedrai `(.venv)` all’inizio della riga.
-
-### 4) Aggiorna pip (consigliato)
-
-```bash
-python -m pip install --upgrade pip
-```
-
-### 5) Installa dipendenze
-
-```bash
-pip install -r requirements.txt
-```
-
-### 6) VS Code: seleziona interpreter
-
-* `Ctrl + Shift + P` → **Python: Select Interpreter**
-* scegli `./.venv/Scripts/python.exe`
-
----
-
-## macOS (Lorenzo, Carla, Eleonora) — Terminal + VS Code
-
-### 1) Vai nella root della repo
-
-```bash
-cd ~/path/to/italian-financial-challenge
-```
-
-### 2) Crea il venv
-
-```bash
-python3 -m venv .venv
-```
-
-### 3) Attiva il venv
-
-```bash
-source .venv/bin/activate
-```
-
-✅ Se è attivo vedrai `(.venv)` nel prompt.
-
-### 4) Aggiorna pip
-
-```bash
-python -m pip install --upgrade pip
-```
-
-### 5) Installa dipendenze
-
-```bash
-pip install -r requirements.txt
-```
-
-### 6) VS Code: seleziona interpreter
-
-* `Cmd + Shift + P` → **Python: Select Interpreter**
-* scegli `./.venv/bin/python`
-
----
-
-## Verifica rapida (tutti)
-
-Con venv attivo:
-
-```bash
-python -c "import pandas, sklearn; print('OK')"
-```
-
-Se stampa `OK`, è tutto a posto.
-
----
-
-## Se VS Code usa l’interprete sbagliato
-
-1. Chiudi e riapri VS Code nella root repo
-2. Seleziona interpreter come sopra
-3. In un notebook: in alto a destra scegli il **Kernel** = `.venv`
-
----
-
-## Quando aggiungete nuove librerie
-
-1. Installate nel venv:
-
-```bash
-pip install <package>
-```
-
-2. Aggiornate `requirements.txt`:
-
-```bash
-pip freeze > requirements.txt
-```
-
-3. Commit del `requirements.txt` su GitHub
-
-> Consiglio: fate questa cosa solo quando siete sicuri (non ogni 5 minuti), per evitare rumore.
-
-
