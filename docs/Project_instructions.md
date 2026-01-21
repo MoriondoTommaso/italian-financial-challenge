@@ -32,6 +32,12 @@ Queste regole **non si negoziano** (vedi anche `docs/decisions.md`):
 - Lag features: create solo dal passato con `groupby(company_id).shift(1)` dopo sorting per `fiscal_year`.
 - Implementazione preferita: **sklearn Pipeline** per garantire fit/apply corretto.
 
+## 1.1 Config del progetto (single source of truth)
+- Dataset paths: `configs/data.yaml`
+- Split policy: `configs/split.yaml`
+- Loader: `src/ifc/config.py` (non hardcodare path nei notebook)
+
+
 ---
 
 ## 2) Setup iniziale (OGNUNO — una volta sola)
@@ -262,6 +268,17 @@ git push
 ```
 
 ---
+
+### Sanity check ambiente (tutti) — deve passare
+Con `.venv` attivo:
+
+```bash
+python -c "import sys; print(sys.executable)"
+python -c "import pandas, sklearn, lightgbm, yaml; print('IMPORTS_OK')"
+python -m pip check
+python -m pytest -q
+```
+
 
 ## 8) FAQ rapida
 
