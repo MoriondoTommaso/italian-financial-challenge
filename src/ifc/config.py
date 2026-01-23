@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Optional
 import yaml
@@ -69,6 +69,7 @@ class DataConfig:
     id_col: str
     time_col: str
     target_col: str
+    drop_cols: list[str] = field(default_factory=list)
 
     @staticmethod
     def from_yaml(path: str | Path) -> "DataConfig":
@@ -79,6 +80,7 @@ class DataConfig:
             id_col=d["id_col"],
             time_col=d["time_col"],
             target_col=d["target_col"],
+            drop_cols=list(d.get("drop_cols", [])),
         )
 
     def resolve_paths(self, project_root: Optional[Path] = None) -> tuple[Path, Path]:
@@ -92,28 +94,49 @@ class DataConfig:
         test_abs = (root / self.test_path).resolve()
         return train_abs, test_abs
 
+
 @dataclass(frozen=True)
 class SplitConfig:
-    """Split configurations for train and validation sets"""
+    """Split configurations for forecasting holdout (X(t-1) -> y(t))."""
     strategy: str
     time_col: str
     id_col: str
     target_col: str
     shuffle: bool
-    history_years: list[int]
-    train_years: list[int]
-    val_years: list[int]
+    horizon_years: int
+    train_target_years: list[int]
+    val_target_years: list[int]
+    test_target_years: list[int] = field(default_factory=list)
 
     @staticmethod
     def from_yaml(path: str | Path) -> "SplitConfig":
         d = load_yaml(path)
+
+        # Backward-compat mapping (legacy keys)
+        train_target_years = d.get("train_target_years", d.get("train_years"))
+        val_target_years = d.get("val_target_years", d.get("val_years"))
+        test_target_years = d.get("test_target_years", [])
+
+        if train_target_years is None or val_target_years is None:
+            raise KeyError(
+                "split.yaml must define train_target_years/val_target_years "
+                "(or legacy train_years/val_years)."
+            )
+
+        shuffle = bool(d.get("shuffle", False))
+        if shuffle:
+            raise ValueError("shuffle must be false for time-aware forecasting holdout.")
+
+        horizon_years = int(d.get("horizon_years", 1))
+
         return SplitConfig(
             strategy=d["strategy"],
             time_col=d["time_col"],
             id_col=d["id_col"],
             target_col=d["target_col"],
-            shuffle=bool(d.get("shuffle", False)),
-            history_years=list(d.get("history_years", [])),
-            train_years=list(d["train_years"]),
-            val_years=list(d["val_years"]),
+            shuffle=shuffle,
+            horizon_years=horizon_years,
+            train_target_years=list(train_target_years),
+            val_target_years=list(val_target_years),
+            test_target_years=list(test_target_years),
         )
