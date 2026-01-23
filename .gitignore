@@ -1,6 +1,5 @@
-# =====================================
+
 # Python / Build / Cache
-# =====================================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -16,7 +15,7 @@ pip-wheel-metadata/
 *.egg
 .installed.cfg
 
-# Virtual env (ONLY local, never commit)
+# Virtual env 
 .venv/
 venv/
 env/
@@ -26,70 +25,55 @@ ENV/
 .env
 .env.*
 
-# =====================================
 # Testing / Coverage
-# =====================================
+
 .pytest_cache/
 .coverage
 coverage.xml
 htmlcov/
 pytestdebug.log
 
-# =====================================
+
 # Jupyter
-# =====================================
+
 .ipynb_checkpoints/
 *.ipynb_backup
 
-# =====================================
+
 # IDE
-# =====================================
+
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# =====================================
+
 # OS
-# =====================================
+
 .DS_Store
 Thumbs.db
 
-# =====================================
+
 # Model artifacts / outputs
-# =====================================
+
 *.pkl
 *.joblib
 *.h5
 *.pth
 
-# =====================================
-# Data policy
-# Keep data/processed tracked (provided datasets live there)
-# Ignore raw/interim/external
-# =====================================
-data/raw/
-data/interim/
-data/external/
 
-# =====================================
+
 # Figures / plots policy
-# Ignore generic root folders, but allow reports/figures
-# =====================================
+
 /plots/
 /figures/
 
-# If you want to ignore “random” images globally but keep reports/figures, use this:
-# *.png
-# *.jpg
-# *.jpeg
-# !reports/figures/**
 
-# =====================================
+
 # PDFs policy
 # Ignore generic PDFs but allow slides exports + submissions
-# =====================================
+
 *.pdf
 !slides/
 !slides/*.pdf
