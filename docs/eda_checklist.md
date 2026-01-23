@@ -1,6 +1,6 @@
 # EDA Final Checklist (KIS + Business-Ready) — Challenge 3 (Revenue Forecasting)
 
-**Goal**: forecast `revenue_change` (percentage change in `production_value`) with a time-aware workflow to avoid leakage. :contentReference[oaicite:1]{index=1}
+**Goal**: forecast `revenue_change` (percentage change in `production_value`) with a time-aware workflow to avoid leakage.
 
 ## Dataset context (columns from data dictionary)
 
@@ -28,7 +28,7 @@
 - Establish what we have and what needs preprocessing.
 
 **Takeaway (1 line)**
-- “The dataset contains firm-year observations keyed by (`company_id`, `fiscal_year`) with mixed numeric/categorical features and missingness concentrated in `revenue_change` and `province`.” :contentReference[oaicite:2]{index=2}
+- “The dataset contains firm-year observations keyed by (`company_id`, `fiscal_year`) with mixed numeric/categorical features and missingness concentrated in `revenue_change` and `province`.”
 
 ---
 
@@ -41,7 +41,7 @@
 - Validates which years are usable for supervised learning.
 
 **Takeaway**
-- “`revenue_change` is missing for companies’ first observed year; in particular it is fully missing in 2018 (dataset start), so supervised learning starts from 2019 and we use a time-based split.” 
+- “`revenue_change` is missing for companies’ first observed year; in particular it is fully missing in 2018 (dataset start), so supervised learning starts from 2019 and we use a time-based split.”
 
 ---
 
@@ -55,7 +55,7 @@
 - Shows the “core” without outliers dominating.
 
 **Takeaway**
-- “The target is heavy-tailed: most observations are near the center, with extreme growth/decline outliers.” :contentReference[oaicite:4]{index=4}
+- “The target is heavy-tailed: most observations are near the center, with extreme growth/decline outliers.”
 
 ---
 
@@ -72,17 +72,18 @@
 
 ---
 
-## 4) Temporal drift in target (2019 vs 2020 vs 2021)
+## 4) Temporal drift in target (The "COVID V-Shape")
 
 **Output**
 - Table by `fiscal_year` (2019/2020/2021): mean, median, p95, p99
 - Boxplot by year (optionally clipped for readability)
+- **Specific check**: Look for contraction in 2020 vs rebound in 2021.
 
 **Why**
-- If 2021 differs from 2019–2020, generalization risk increases.
+- 2020 was a pandemic year (contraction), 2021 recovery. This extreme volatility justifies strict time-validation.
 
 **Takeaway**
-- “We compare yearly distributions; any 2021 shift is documented as generalization risk (macro conditions changed in 2020–2021).” :contentReference[oaicite:5]{index=5}
+- “We observe a distinct 'V-shape' pattern (2020 drop, 2021 rebound); this confirms 2021 is structurally different, increasing the importance of our validation strategy.”
 
 ---
 
@@ -98,7 +99,7 @@
 - Explains extreme values (often denominator near 0), justifying winsorization / robust metrics.
 
 **Takeaway**
-- “Extreme `revenue_change` is consistent with denominator effects when prior-year `production_value` is very small.” :contentReference[oaicite:6]{index=6}
+- “Extreme `revenue_change` is consistent with denominator effects when prior-year `production_value` is very small.”
 
 ---
 
@@ -112,7 +113,7 @@
 - Sectors differ in inherent volatility → forecasting difficulty differs.
 
 **Takeaway**
-- “Volatility differs across `ateco_sector`; some sectors have heavier tails, implying higher expected error.” :contentReference[oaicite:7]{index=7}
+- “Volatility differs across `ateco_sector`; some sectors have heavier tails, implying higher expected error.”
 
 ---
 
@@ -126,7 +127,7 @@
 - Documents representation bias + categorical sparsity.
 
 **Takeaway**
-- “Coverage is not uniform across `region`; results may reflect areas with higher representation.” :contentReference[oaicite:8]{index=8}
+- “Coverage is not uniform across `region`; results may reflect areas with higher representation.”
 
 ---
 
@@ -142,11 +143,28 @@
 - Volatility and model error often differ by firm size.
 
 **Takeaway**
-- “Target volatility varies by size bucket; we expect different error profiles across firm sizes.” :contentReference[oaicite:9]{index=9}
+- “Target volatility varies by size bucket; we expect different error profiles across firm sizes.”
 
 ---
 
-## Optional (if time) — 9) Feature drift on 5 key variables (X drift)
+## 9) Company Age Analysis (Startup Volatility)
+
+**Feature**: `years_in_business`
+
+**Output**
+- Scatter plot: `years_in_business` vs `abs(revenue_change)` (or `revenue_change`)
+- Table by Age Bucket (e.g., <5 years, 5-15 years, >15 years):
+  - Median target, Standard Deviation of target
+
+**Why**
+- Hypothesis: Young companies (startups) have explosive growth/fail rates; mature companies are stable.
+
+**Takeaway**
+- “Younger companies show significantly higher volatility, suggesting `years_in_business` is a key segmentation feature for handling outliers.”
+
+---
+
+## 10) Feature drift on 5 key variables (X drift)
 
 **Suggested 5 features**
 - `production_value`, `total_assets`, `total_debt`, `operating_income`, `current_ratio`
@@ -163,7 +181,7 @@
 
 ---
 
-## 10) Correlation & Multicollinearity (Driver Analysis)
+## 11) Correlation & Multicollinearity (Driver Analysis)
 
 **Output**
 - Table/bar plot: top 10 features most correlated with `revenue_change` (Spearman)
@@ -174,7 +192,7 @@
 - Identifies monotonic drivers and flags multicollinearity that can destabilize linear baselines.
 
 **Takeaway**
-- “We identify top drivers and flag highly collinear ratios to reduce redundancy and overfitting.” :contentReference[oaicite:10]{index=10}
+- “We identify top drivers and flag highly collinear ratios to reduce redundancy and overfitting.”
 
 ---
 
@@ -183,13 +201,18 @@
 End the EDA section with **5–7 bullets** covering:
 - Split justification (2018 + first-year missingness; time-aware holdout)
 - Heavy-tail/outliers → robust metrics + winsorization / transforms
-- Drift assessment (target; optionally features)
-- Sector (`ateco_sector`) + geography (`region`) + size (`total_assets`) insights
-- Any data quality anomalies found (duplicates, impossible values)
+- Drift assessment:
+    - **V-Shape Target:** 2020 contraction vs 2021 rebound
+    - **Feature Drift:** Stability of key predictors
+- Volatility drivers:
+    - **Sector** (`ateco_sector`)
+    - **Size** (`total_assets`)
+    - **Age** (`years_in_business` - startups vs mature)
+- Any data quality anomalies found (duplicates, accounting identity violations)
 
 ---
 
 ## (Optional but recommended) Data quality checks tied to the dictionary
 
-- Accounting identity check: `total_assets ≈ shareholders_equity + total_debt` (report violation rate; investigate extreme deviations). :contentReference[oaicite:11]{index=11}
-- Ratio sanity: check `roe`, `leverage` for inf/NaN patterns tied to denominators (equity near 0 / negative). :contentReference[oaicite:12]{index=12}
+- Accounting identity check: `total_assets ≈ shareholders_equity + total_debt` (report violation rate; investigate extreme deviations).
+- Ratio sanity: check `roe`, `leverage` for inf/NaN patterns tied to denominators (equity near 0 / negative).
