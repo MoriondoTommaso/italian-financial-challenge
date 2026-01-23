@@ -103,17 +103,18 @@
 
 ---
 
-## 6) ATECO segmentation (volatility by sector)
+## 6) ATECO segmentation (The "K-Shape" Check)
 
 **Output**
 - Table: top 10 `ateco_sector` by count with:
-  - count, median `revenue_change`, p95 `revenue_change` (and optionally p99)
+  - count, median `revenue_change`, p95 `revenue_change`
+- **Specific check**: Pivot table of median `revenue_change` by `ateco_sector` vs `fiscal_year`.
 
 **Why**
-- Sectors differ in inherent volatility → forecasting difficulty differs.
+- To confirm if the 2020 shock affected sectors asymmetrically (e.g., Tourism crashing vs IT stable), known as K-Shaped recovery.
 
 **Takeaway**
-- “Volatility differs across `ateco_sector`; some sectors have heavier tails, implying higher expected error.”
+- “Volatility differs across `ateco_sector` and the 2020 impact is asymmetric; this confirms sector identity is a key predictor for handling the COVID period.”
 
 ---
 
@@ -205,7 +206,7 @@ End the EDA section with **5–7 bullets** covering:
     - **V-Shape Target:** 2020 contraction vs 2021 rebound
     - **Feature Drift:** Stability of key predictors
 - Volatility drivers:
-    - **Sector** (`ateco_sector`)
+    - **Sector** (`ateco_sector` - check K-shape recovery)
     - **Size** (`total_assets`)
     - **Age** (`years_in_business` - startups vs mature)
 - Any data quality anomalies found (duplicates, accounting identity violations)
