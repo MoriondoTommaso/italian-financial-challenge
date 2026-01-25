@@ -17,7 +17,7 @@
 
 ---
 
-## 0) Dataset sanity (Data Contract)
+## 0) Dataset sanity (Data Contract) ok
 
 **Output**
 - Print: train/test shape, unique `fiscal_year`, #unique `company_id`
@@ -32,7 +32,7 @@
 
 ---
 
-## 1) Target availability by year (split justification)
+## 1) Target availability by year (split justification) ok
 
 **Output**
 - Table by `fiscal_year`: `count`, `% missing revenue_change`
@@ -45,7 +45,7 @@
 
 ---
 
-## 2) Target distribution — core view (readable)
+## 2) Target distribution — core view (readable) ok
 
 **Output**
 - Histogram of `revenue_change` clipped to p1–p99 (or set x-limits)
@@ -59,7 +59,7 @@
 
 ---
 
-## 3) Target distribution — heavy-tail view (transform-friendly)
+## 3) Target distribution — heavy-tail view (transform-friendly) Lorenzo
 
 **Output**
 - Histogram of signed-log target: `sign(y) * log1p(|y|)`
@@ -72,7 +72,7 @@
 
 ---
 
-## 4) Temporal drift in target (The "COVID V-Shape")
+## 4) Temporal drift in target (The "COVID V-Shape") Lorenzo
 
 **Output**
 - Table by `fiscal_year` (2019/2020/2021): mean, median, p95, p99
@@ -87,7 +87,7 @@
 
 ---
 
-## 5) Outlier mechanism diagnosis (ratio explosion check)
+## 5) Outlier mechanism diagnosis (ratio explosion check) Carla
 
 **Output**
 - Create `production_value_lag1` = groupby(`company_id`) + shift(1) on `production_value`
@@ -103,7 +103,7 @@
 
 ---
 
-## 6) ATECO segmentation (The "K-Shape" Check)
+## 6) ATECO segmentation (The "K-Shape" Check) Carla
 
 **Output**
 - Table: top 10 `ateco_sector` by count with:
@@ -118,7 +118,7 @@
 
 ---
 
-## 7) Geography — coverage (descriptive, not decorative)
+## 7) Geography — coverage (descriptive, not decorative) Eleonora
 
 **Output**
 - Table/bar plot: company counts by `region` (top N)
@@ -132,7 +132,7 @@
 
 ---
 
-## 8) Company size buckets (CFO-friendly segmentation)
+## 8) Company size buckets (CFO-friendly segmentation) Eleonora
 
 **Default proxy**: `total_assets` (alternative: `production_value`)
 
@@ -148,7 +148,7 @@
 
 ---
 
-## 9) Company Age Analysis (Startup Volatility)
+## 9) Company Age Analysis (Startup Volatility) Tommaso
 
 **Feature**: `years_in_business`
 
@@ -165,7 +165,7 @@
 
 ---
 
-## 10) Feature drift on 5 key variables (X drift)
+## 10) Feature drift on 5 key variables (X drift) Tommaso
 
 **Suggested 5 features**
 - `production_value`, `total_assets`, `total_debt`, `operating_income`, `current_ratio`
@@ -182,7 +182,7 @@
 
 ---
 
-## 11) Correlation & Multicollinearity (Driver Analysis)
+## 11) Correlation & Multicollinearity (Driver Analysis) Tommaso
 
 **Output**
 - Table/bar plot: top 10 features most correlated with `revenue_change` (Spearman)
