@@ -80,3 +80,14 @@ Thumbs.db
 !slides/*.pptx
 !outputs/submissions/*.csv
 
+# Conda
+.conda/
+
+# Logs
+*.log
+logs/
+
+# Extra caches
+.cache/
+.mypy_cache/
+.ipython/
