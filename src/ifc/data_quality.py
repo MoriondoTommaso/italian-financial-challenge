@@ -1,13 +1,10 @@
 """
-Data quality & leakage gates for IFC Task 3.
+Data quality & leakage gates 
 
 Goal:
 - Provide reusable, readable checks to validate dataset integrity before modeling.
 - Produce notebook-friendly tables + a PASS/WARN/FAIL summary.
 
-Public API:
-- run_all_checks_readable(train_df, test_df, ...)
-- print_report(report)
 """
 
 from __future__ import annotations
@@ -35,9 +32,9 @@ RAW_INCOME = [
 RATIO_COLS = ["roe", "roi", "profit_margin", "leverage", "debt_to_assets", "current_ratio", "quick_ratio"]
 
 
-# -----------------------------
+
 # Helpers
-# -----------------------------
+
 def _require_cols(df: pd.DataFrame, cols: List[str], where: str) -> None:
     missing = [c for c in cols if c not in df.columns]
     if missing:
@@ -86,9 +83,9 @@ def _status(pass_cond: bool, warn_cond: bool = False) -> str:
     return "PASS"
 
 
-# -----------------------------
+
 # Core checks
-# -----------------------------
+
 def check_keys_and_years(train_df: pd.DataFrame, test_df: pd.DataFrame) -> Dict[str, Any]:
     _require_cols(train_df, [ID_COL, TIME_COL], "check_keys_and_years(train)")
     _require_cols(test_df, [ID_COL, TIME_COL], "check_keys_and_years(test)")
@@ -170,10 +167,10 @@ def check_multi_year_zeros(df: pd.DataFrame, col: str, min_years: int = 2) -> Op
     return int((counts >= min_years).sum())
 
 
-# -----------------------------
+
 # Report builder
-# -----------------------------
-def run_all_checks_readable(
+
+def run_all_checks(
     train_df: pd.DataFrame,
     test_df: pd.DataFrame,
     *,
